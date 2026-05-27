@@ -2,18 +2,17 @@ library(xml2)
 library(dplyr)
 library(purrr)
 library(XML)
+library(stringr)
+library(stringdist)
 
 # Read data
-FDA_df <- read.csv("E:/data/First Filtering2/FDA.csv")
-EMA_df <- read.csv("E:/data/First Filtering2/EMA.csv")
+doc <- read_xml("Master Thesis/full database.xml")
+xml_structure <- xml_children(doc)
 
-xsd <- read_xml("C:/Users/Nikki/Downloads/drugbank(1).xsd")
-xml_structure <- xml_children(xsd)
-xml_name(xml_structure)
-xml_find_all(xsd, ".//xs:element[contains(translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'fda')]", xml_ns(xsd)) |>
-  xml_attr("name")
-doc <- read_xml("E:/Master thesis Data/drugbank_all_full_database.xml/full database.xml")
 ns <- xml_ns(doc)
+xsd <- read_xml("Master Thesis/drugbank.xsd")
+xml_find_all(xsd, ".//xs:element", xml_ns(xsd)) |>
+  xml_attr("name")
 
 # Select specific nodes
 drugs <- xml_find_all(doc, ".//d1:drug", ns)
@@ -33,29 +32,53 @@ drug_df <- data.frame(
   name = sapply(drugs, function(x)
     xml_text(xml_find_first(x, ".//d1:name", ns))
   ),
-  cas_number = sapply(drugs, function(x)
-    xml_text(xml_find_first(x, ".//d1:cas-number", ns))
+  mech_action = sapply(drugs, function(x)
+    xml_text(xml_find_first(x, ".//d1:action", ns))
+  ),
+  target = sapply(drugs, function(x)
+    xml_text(xml_find_first(x, ".//d1:targets", ns))
   ),
   indication = sapply(drugs, function(x)
     xml_text(xml_find_first(x, ".//d1:indication", ns))
   ),
   classification = sapply(drugs, function(x)
-    xml_text(xml_find_first(x, ".//d1:classification/d1:description", ns))
+    xml_text(xml_find_first(x, ".//d1:classification/d1:class", ns))
+  ),
+  type = sapply(drugs, function(x)
+    xml_attr(x, "type")
+  ),
+  categories = sapply(drugs, function(x)
+    xml_text(xml_find_first(x, ".//d1:category", ns))
+  ),
+  groups = sapply(drugs, function(x)
+    xml_text(xml_find_first(x, ".//d1:group", ns))
+  ),
+  classification2 = sapply(drugs, function(x)
+    xml_text(xml_find_first(x, ".//d1:groups/d1:group", ns))
   ),
   synonyms = sapply(drugs, function(x)
     collapse_nodes(x, ".//d1:synonym", ns)
   ),
-  atc_codes = sapply(drugs, function(x)
-    collapse_nodes(x, ".//d1:atc-code/d1:code", ns)
-  ),
-  pubmed_ids = sapply(drugs, function(x)
-    collapse_nodes(x, ".//d1:pubmed-id", ns)
-  ),
-  external_ids = sapply(drugs, function(x)
-    collapse_nodes(x, ".//d1:external-identifier/d1:identifier", ns)
-  ),
   products = sapply(drugs, function(x)
     collapse_nodes(x, ".//d1:product/d1:name", ns)
+  ),
+  international_brands = sapply(drugs, function(x)
+    collapse_nodes(x, ".//d1:international-brand", ns)
+  ),
+  fda_label = sapply(drugs, function(x)
+    collapse_nodes(x, ".//d1:fda-label", ns)
+  ),
+  pubmed_id = sapply(drugs, function(x)
+    collapse_nodes(x, ".//d1:pubmed-id", ns)
+  ),
+  ema_product_code = sapply(drugs, function(x)
+    collapse_nodes(x, ".//d1:ema-product-code", ns)
+  ),
+  ema_ma_number = sapply(drugs, function(x)
+    collapse_nodes(x, ".//d1:ema-ma-number", ns)
+  ),
+  fda_application_number = sapply(drugs, function(x)
+    collapse_nodes(x, ".//d1:fda-application-number", ns)
   ),
   stringsAsFactors = FALSE
 )
@@ -63,3 +86,6 @@ drug_df <- data.frame(
 # Add NAs
 drug_df <- drug_df %>%
   mutate(across(everything(), ~na_if(.x, "")))
+
+# Save data
+write.csv(drug_df, "Drugbank.csv", row.names = FALSE)
