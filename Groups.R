@@ -29,13 +29,13 @@ base_groups <- base_binary %>%
       pubmed == 0 & trials == 0 & designations == 0 & approvals == 0 ~ "None",
       pubmed == 1 & trials == 0 & designations == 0 & approvals == 0 ~ "Only published literature",
       pubmed == 0 & trials == 1 & designations == 0 & approvals == 0 ~ "Only clinical trials",
-      pubmed == 0 & trials == 0 & designations == 1 & approvals == 0 ~ "Orphan designations",
+      pubmed == 0 & trials == 0 & designations == 1 & approvals == 0 ~ "Only orphan designations",
       pubmed == 1 & trials == 1 & designations == 0 & approvals == 0 ~ "Published literature and clinical trials",
       pubmed == 1 & trials == 0 & designations == 1 & approvals == 0 ~ "Published literature and orphan designations",
       pubmed == 0 & trials== 1 & designations == 1 & approvals == 0 ~ "Clinical trials and orphan designations",
-      pubmed == 1 & trials == 1 & designations == 1 & approvals == 0 ~ "All except marketing authorisations",
-      pubmed == 1 & trials == 1 & designations == 1 & approvals == 1 ~ "Full research",
-      pubmed == 0 & trials == 0 & designations == 1 & approvals == 1 ~ "Full research1"
+      pubmed == 1 & trials == 1 & designations == 1 & approvals == 0 ~ "Published literature, clinical trials and orphan designations",
+      pubmed == 1 & trials == 1 & designations == 1 & approvals == 1 ~ "Published literature, clinical trials, orphan designations and marketing authorisations",
+      pubmed == 0 & trials == 0 & designations == 1 & approvals == 1 ~ "Full research"
     )
   ) %>%
   select(-pubmed, -pubmed_drug, -trials, -orphan_trials, -designations, -approvals)
@@ -62,9 +62,7 @@ plot_groups <- base_groups %>%
   mutate(percent = n / sum(n) * 100)
 
 plot_groups2 <- base_groups2 %>%
-  count(tumor_family, group) %>%
-  mutate(percent = n / sum(n) * 100)
-
+  count(tumor_family, group) 
 
 # # Ranks
 # family_order <- c(
@@ -83,13 +81,13 @@ plot_groups2 <- base_groups2 %>%
 phase_order <- c(
   "None",
   "Only published literature",
+  "Published literature and orphan designations",
+  "Only orphan designations",
   "Only clinical trials",
   "Published literature and clinical trials",
-  "Only orphan designations",
-  "Published literature and orphan designations",
   "Clinical trials and orphan designations",
-  "All except marketing authorisations",
-  "Full research"
+  "Published literature, clinical trials and orphan designations",
+  "Published literature, clinical trials, orphan designations and marketing authorisations"
 )
 
 # Create tumour families
@@ -109,15 +107,31 @@ base_groups2 <- base_groups %>%
   ))
   #filter(tumor_family != "Other tumours")
 
+write.csv(base_groups2, "Results3.csv", row.names = FALSE)
+
 # Calculate per tumour family and group
-plot_groups2 <- base_groups2 %>%
+plot_groups_ <- base_groups2 %>%
   count(tumor_family, group)
+
+# Calculate incidence per group
+incidence_labels <- base_groups2 %>%
+  mutate(Crude.incidence.rate.per.100.000 =
+           as.numeric(gsub(",", ".", Crude.incidence.rate.per.100.000))) %>%
+  group_by(tumor_family) %>%
+  summarise(
+    total_incidence = sum(Crude.incidence.rate.per.100.000, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Combine
+plot_groups2 <- plot_groups_ %>%
+  left_join(incidence_labels, by = "tumor_family")
 
 # Compute tumour family ordering based on stage score
 family_order <- plot_groups2 %>%
   mutate(score = case_when(
-    group == "Full research" ~ 125,
-    group == "All except marketing authorisations" ~ 20,
+    group == "Published literature, clinical trials, orphan designations and marketing authorisations" ~ 125,
+    group == "Published literature, clinical trials and orphan designations" ~ 20,
     group == "Clinical trials and orphan designations" ~ 6,
     group == "Published literature and clinical trials" ~ 4,
     group == "Published literature and orphan designations" ~ 4,
@@ -132,16 +146,38 @@ family_order <- plot_groups2 %>%
   arrange(desc(total_score)) %>%
   pull(tumor_family)
 
+# Labels
+label_df <- plot_groups2 %>%
+  group_by(tumor_family) %>%
+  summarise(
+    y_pos = sum(n),
+    total_incidence = first(total_incidence),
+    .groups = "drop"
+  )
+
 # Plot the results
 ggplot(plot_groups2,
        aes(x = factor(tumor_family, levels = family_order),
            y = n,
            fill = factor(group, levels = phase_order))) +
   geom_col() +
+  geom_text(
+    data = label_df,
+    aes(
+      x = factor(tumor_family, levels = family_order),
+      y = y_pos + 2,  
+      label = round(total_incidence, 1)
+    ),
+    inherit.aes = FALSE,
+    size = 5
+  ) +
+  scale_fill_discrete(
+    labels = \(x) stringr::str_wrap(x, width = 35)
+    ) +
   labs(
     x = "Tumour group",
     y = "Number of tumours",
-    fill = "Orphan drug development stage",
+    fill = "Orphan drug development stage\n(least to most advanced)",
     title = "Orphan Drug Development Stage Progression Across Several Identified Tumour Groups"
   ) +
   theme_minimal() +
@@ -248,6 +284,9 @@ ggplot(df_plot, aes(x = group, y = median_publications)) +
   geom_errorbar(
     aes(ymin = q1, ymax = q3),
     width = 0.2
+  ) +
+  scale_x_discrete(
+    labels = \(x) stringr::str_wrap(x, width = 25)
   ) +
   labs(
     x = "Orphan drug development stage",

@@ -53,9 +53,10 @@ trial_information_df <- read.csv("E:/data/Splitted2/Trial_information.csv") %>%
       "bulgaria",
       Member.State
     ))
- 
+base_groups2 <- read.csv("E:/data/Matched/Results3.csv", sep = ",") 
+
 # Get RARECARE tumour name
-tumour_names <- tumours_final %>%
+tumour_name <- tumours_final %>%
   mutate(Tumour.ID = as.character(Tumour.ID)) %>%
   select(Tumour.ID, Synonym_main, Crude.incidence.rate.per.100.000) %>%
   rename(Tumours.ID = Tumour.ID) %>%
@@ -66,17 +67,254 @@ tumours_raw_filtered <- tumours_raw %>%
   filter(`R=rare` == "R") %>%
   filter(Tier == 2) %>%
   mutate(Tumour = str_remove(Tumour, "\\*")) %>%
-  select(Tumour, `Crude incidence rate per 100,000`)
+  select(Tumour, `Crude incidence rate per 100,000`) %>%
+  mutate(tumor = c(
+    "Squamous cell carcinoma with variants of nasal cavity and sinuses",
+    "Lymphoepithelial carcinoma of nasal cavity and sinuses",
+    "Undifferentiated carcinoma of nasal cavity and sinuses",
+    "Intestinal type adenocarcinoma of nasal cavity and sinuses",
+    "Squamous cell carcinoma with variants of nasopharynx",
+    "Papillary adenocarcinoma of nasopharynx",
+    "Epithelial tumours of major salivary glands",
+    "Salivary gland type tumours of head and neck",
+    "Squamous cell carcinoma with variants of hypopharynx",
+    "Squamous cell carcinoma with variants of larynx",
+    "Squamous cell carcinoma with variants of oropharynx",
+    "Squamous cell carcinoma with variants of oral cavity",
+    "Squamous cell carcinoma with variants of lip",
+    "Squamous cell carcinoma with variants of oesophagus",
+    "Adenocarcinoma with variants of oesophagus",
+    "Salivary gland type tumours of oesophagus",
+    "Undifferentiated carcinoma of oesophagus",
+    "Squamous cell carcinoma with variants of stomach",
+    "Salivary gland type tumours of stomach",
+    "Undifferentiated carcinoma of stomach",
+    "Adenocarcinoma with variants of small intestine",
+    "Squamous cell carcinoma with variants of small intestine",
+    "Squamous cell carcinoma with variants of colon",
+    "Fibromyxoma and low-grade mucinous adenocarcinoma (pseudomyxoma peritonei) of the appendix",
+    "Squamous cell carcinoma with variants of rectum",
+    "Squamous cell carcinoma with variants of anal canal",
+    "Adenocarcinoma with variants of anal canal",
+    "Paget's disease of anal canal",
+    "Squamous cell carcinoma with variants of pancreas",
+    "Acinar cell carcinoma of pancreas",
+    "Mucinous cystadenocarcinoma of pancreas",
+    "Intraductal papillary mucinous carcinoma (invasive) of pancreas",
+    "Solid pseudopapillary carcinoma of pancreas",
+    "Serous cystadenocarcinoma of pancreas",
+    "Carcinoma with osteoclast-like giant cells of pancreas",
+    "Hepatocellular carcinoma of liver and intrahepatic bile tract",
+    "Fibrolamellar hepatocellular carcinoma",
+    "Cholangiocarcinoma of intrahepatic bile tract",
+    "Adenocarcinoma with variants of liver and intrahepatic bile tract",
+    "Undifferentiated carcinoma of liver and intrahepatic bile tract",
+    "Squamous cell carcinoma with variants of liver and intrahepatic bile tract",
+    "Bile duct cystadenocarcinoma of intrahepatic bile tract",
+    "Adenocarcinoma with variants of gallbladder",
+    "Adenocarcinoma with variants of extrahepatic bile tract",
+    "Squamous cell carcinoma of gallbladder and extrahepatic bile tract",
+    "Squamous cell carcinoma with variants of trachea",
+    "Adenocarcinoma with variants of trachea",
+    "Salivary gland type tumours of trachea",
+    "Adenosquamous carcinoma of lung",
+    "Large cell carcinoma of lung",
+    "Salivary gland type tumours of lung",
+    "Sarcomatoid carcinoma of lung",
+    "Malignant thymoma",
+    "Squamous cell carcinoma of thymus",
+    "Undifferentiated carcinoma of thymus",
+    "Lymphoepithelial carcinoma of thymus",
+    "Adenocarcinoma with variants of thymus",
+    "Mammary Paget’s disease of breast",
+    "Special types of adenocarcinoma of breast",
+    "Metaplastic carcinoma of breast",
+    "Salivary gland type tumours of breast",
+    "Epithelial tumour of male breast",
+    "Squamous cell carcinoma with variants of corpus uteri",
+    "Adenoid cystic carcinoma of corpus uteri",
+    "Clear cell adenocarcinoma, NOS",
+    "Serous (papillary) carcinoma",
+    "Müllerian mixed tumour",
+    "Squamous cell carcinoma with variants of cervix uteri",
+    "Adenocarcinoma with variants of cervix uteri",
+    "Undifferentiated carcinoma of cervix uteri",
+    "Müllerian mixed tumour of cervix uteri",
+    "Adenocarcinoma with variants of ovary",
+    "Mucinous adenocarcinoma of ovary",
+    "Clear cell adenocarcinoma of ovary",
+    "Primary peritoneal serous/papillary carcinoma",
+    "Müllerian mixed tumour of ovary",
+    "Adenocarcinoma with variants of fallopian tube",
+    "Sex cord tumours of ovary",
+    "Malignant/immature teratomas of ovary",
+    "Germ cell tumour of ovary",
+    "Squamous cell carcinoma with variants of vulva and vagina",
+    "Adenocarcinoma with variants of vulva and vagina",
+    "Paget's disease of vulva and vagina",
+    "Undifferentiated carcinoma of vulva and vagina",
+    "Choriocarcinoma of placenta",
+    "Squamous cell carcinoma with variants of prostate",
+    "Infiltrating duct carcinoma of prostate",
+    "Transitional cell carcinoma of prostate",
+    "Basal cell adenocarcinoma of prostate",
+    "Paratesticular adenocarcinoma with variants",
+    "Non-seminomatous testicular cancer",
+    "Seminomatous testicular cancer",
+    "Spermatocytic seminoma",
+    "Teratoma with malignant transformation",
+    "Testicular sex cord tumour",
+    "Squamous cell carcinoma with variants of penis",
+    "Adenocarcinoma with variants of penis",
+    "Squamous cell carcinoma, spindle cell type, of kidney",
+    "Squamous cell carcinoma with variants of kidney",
+    "Transitional cell carcinoma of renal pelvis and ureter",
+    "Squamous cell carcinoma with variants of renal pelvis and ureter",
+    "Adenocarcinoma with variants of renal pelvis and ureter",
+    "Transitional cell carcinoma of urethra",
+    "Squamous cell carcinoma with variants of urethra",
+    "Adenocarcinoma with variants of urethra",
+    "Squamous cell carcinoma with variants of bladder",
+    "Adenocarcinoma with variants of bladder",
+    "Salivary gland type tumours of bladder",
+    "Squamous cell carcinoma with variants of eye and adnexa",
+    "Adenocarcinoma with variants of eye and adnexa",
+    "Squamous cell carcinoma with variants of middle ear",
+    "Adenocarcinoma with variants of middle ear",
+    "Mesothelioma of pleura and pericardium",
+    "Mesothelioma of peritoneum and tunica vaginalis",
+    "Malignant melanoma of mucosa and extracutaneous sites",
+    "Malignant melanoma of uvea",
+    "Adnexal carcinoma of skin",
+    "Neuroblastoma and ganglioneuroblastoma",
+    "Nephroblastoma",
+    "Retinoblastoma",
+    "Hepatoblastoma",
+    "Pleuropulmonary blastoma",
+    "Pancreatoblastoma",
+    "Olfactory neuroblastoma",
+    "Odontogenic malignant tumours",
+    "Non-seminomatous germ cell tumours",
+    "Seminomatous germ cell tumours",
+    "Germ cell tumours of central nervous system (CNS)",
+    "Soft tissue sarcoma of head and neck",
+    "Soft tissue sarcoma of limbs",
+    "Soft tissue sarcoma of superficial trunk",
+    "Soft tissue sarcoma of mediastinum",
+    "Soft tissue sarcoma of heart",
+    "Soft tissue sarcoma of breast",
+    "Soft tissue sarcoma of uterus",
+    "Soft tissue sarcoma of paratestis",
+    "Soft tissue sarcomas of other genitourinary sites",
+    "Soft tissue sarcoma of viscera",
+    "Soft tissue sarcoma of retroperitoneum and peritoneum",
+    "Soft tissue sarcoma of pelvis",
+    "Soft tissue sarcoma of skin",
+    "Soft tissue sarcoma of paraorbital region",
+    "Soft tissue sarcoma of brain and nervous system",
+    "Embryonal rhabdomyosarcoma",
+    "Alveolar rhabdomyosarcoma",
+    "Ewing sarcoma of soft tissue",
+    "Osteosarcoma",
+    "Chondrosarcoma",
+    "Chordoma",
+    "Vascular sarcoma",
+    "Ewing sarcoma",
+    "Adamantinoma",
+    "High-grade sarcoma (fibrosarcoma, undifferentiated pleomorphic sarcoma)",
+    "Gastrointestinal stromal tumour (GIST)",
+    "Kaposi sarcoma",
+    "Well-differentiated neuroendocrine tumour (NET) of pancreas and digestive tract",
+    "Well-differentiated functioning neuroendocrine tumour of pancreas and digestive tract",
+    "Poorly differentiated neuroendocrine carcinoma of pancreas and digestive tract",
+    "Mixed neuroendocrine-non-neuroendocrine neoplasm (MiNEN) of pancreas and digestive tract",
+    "Endocrine carcinoma of thyroid gland",
+    "Neuroendocrine carcinoma of skin",
+    "Typical and atypical carcinoid of the lung",
+    "Neuroendocrine carcinoma of other sites",
+    "Malignant pheochromocytoma",
+    "Paraganglioma",
+    "Pituitary carcinoma",
+    "Carcinoma of thyroid gland",
+    "Parathyroid carcinoma",
+    "Adrenal cortical carcinoma",
+    "Astrocytic tumours of CNS",
+    "Oligodendroglial tumours of CNS",
+    "Ependymal tumours of CNS",
+    "Neuronal and mixed neuronal-glial tumours of CNS",
+    "Choroid plexus carcinoma of CNS",
+    "Malignant meningioma",
+    "Embryonal tumours of CNS",
+    "Classical Hodgkin lymphoma",
+    "Nodular lymphocyte predominant Hodgkin lymphoma",
+    "Precursor B/T lymphoblastic leukaemia/lymphoma (including Burkitt leukaemia/lymphoma)",
+    "Cutaneous T-cell lymphoma (Sézary syndrome, mycosis fungoides)",
+    "Other T-cell lymphomas and NK-cell neoplasms",
+    "Diffuse large B-cell lymphoma",
+    "Follicular lymphoma",
+    "Hairy cell leukaemia",
+    "Multiple myeloma / Plasmacytoma",
+    "Mantle cell lymphoma",
+    "B-cell prolymphocytic leukaemia",
+    "Acute promyelocytic leukaemia (APL)",
+    "Acute myeloid leukaemia (AML)",
+    "Chronic myeloid leukaemia (CML)",
+    "Other myeloproliferative neoplasms",
+    "Mast cell tumour",
+    "Myelodysplastic syndrome with isolated del(5q)",
+    "Other myelodysplastic syndromes",
+    "Chronic myelomonocytic leukaemia",
+    "Atypical chronic myeloid leukaemia, BCR-ABL1 negative",
+    "Histiocytic malignancies",
+    "Lymph node accessory cell tumours"
+  )
+) %>%
+  mutate(abbreviation = c(
+    "SCC-Nasal", "LEC-Nasal", "UC-Nasal", "ITAC-Nasal", "SCC-NPC", "PAC-NPC",
+    "Salivary-Major", "Salivary-HN", "SCC-Hypopharynx", "SCC-Larynx", "SCC-OPC",
+    "SCC-Oral", "SCC-Lip", "SCC-Oesophagus", "ADC-Oesophagus", "Salivary-Oesophagus",
+    "UC-Oesophagus", "SCC-Stomach", "Salivary-Stomach", "UC-Stomach", "ADC-SI",
+    "SCC-SI", "SCC-Colon", "LAMN-Appendix", "SCC-Rectum", "SCC-Anal", "ADC-Anal",
+    "Paget-Anal", "SCC-Pancreas", "Acinar-Pancreas", "MCAC-Pancreas", "IPMC-Pancreas",
+    "SPPC-Pancreas", "SCAC-Pancreas", "OGC-Pancreas", "HCC", "FL-HCC", "CCA",
+    "ADC-Liver", "UC-Liver", "SCC-Liver", "BDCAC", "ADC-GB", "ADC-EBT", "SCC-GB/EBT",
+    "SCC-Trachea", "ADC-Trachea", "Salivary-Trachea", "ADSCC-Lung", "LCLC", 
+    "Salivary-Lung", "Sarcomatoid-Lung", "Malignant-Thymoma", "SCC-Thymus", 
+    "UC-Thymus", "LEC-Thymus", "ADC-Thymus", "MPD-Breast", "Special-ADC-Breast",
+    "Metaplastic-Breast", "Salivary-Breast", "Male-Breast-Ca", "SCC-Endometrium",
+    "ACC-Endometrium", "CCC", "Serous-Ca", "MMMT", "SCC-Cervix", "ADC-Cervix",
+    "UC-Cervix", "MMMT-Cervix", "ADC-Ovary", "MAC-Ovary", "CCC-Ovary", 
+    "PPSC", "MMMT-Ovary", "ADC-Fallopian", "SCST-Ovary", "Immature-Teratoma-Ovary",
+    "GCT-Ovary", "SCC-Vulva/Vagina", "ADC-Vulva/Vagina", "Paget-Vulva", 
+    "UC-Vulva/Vagina", "Choriocarcinoma", "SCC-Prostate", "IDC-Prostate", 
+    "TCC-Prostate", "BCAC-Prostate", "Paratesticular-ADC", "NSGCT", "SGCT", 
+    "Spermatocytic-Seminoma", "TMT", "Testicular-SCT", "SCC-Penis", "ADC-Penis",
+    "Spindle-SCC-Kidney", "SCC-Kidney", "TCC-RenalPelvis", "SCC-RenalPelvis",
+    "ADC-RenalPelvis", "TCC-Urethra", "SCC-Urethra", "ADC-Urethra", "SCC-Bladder",
+    "ADC-Bladder", "Salivary-Bladder", "SCC-Eye", "ADC-Eye", "SCC-MiddleEar",
+    "ADC-MiddleEar", "Mesothelioma-Pleura", "Mesothelioma-Peritoneum", 
+    "Mucosal-Melanoma", "Uveal-Melanoma", "Adnexal-Ca-Skin", "Neuroblastoma",
+    "Nephroblastoma", "Retinoblastoma", "Hepatoblastoma", "PPB", "Pancreatoblastoma",
+    "ONB", "Odontogenic-Ca", "NSGCT", "SGCT", "CNS-GCT", "STS-HN", "STS-Limbs",
+    "STS-Trunk", "STS-Mediastinum", "STS-Heart", "STS-Breast", "STS-Uterus",
+    "STS-Paratestis", "STS-GU-Other", "STS-Viscera", "STS-Retroperitoneum",
+    "STS-Pelvis", "STS-Skin", "STS-Paraorbital", "STS-CNS", "ERMS", "ARMS",
+    "EWS-STS", "OS", "CS", "Chordoma", "Angiosarcoma", "EWS", "Adamantinoma",
+    "HighGrade-Sarcoma", "GIST", "KS", "NET-Pancreas", "fNET-Pancreas", 
+    "PDNEC", "MiNEN", "Thyroid-Endocrine-Ca", "NEC-Skin", "Carcinoid-Lung",
+    "NEC-Other", "Malignant-Pheo", "Paraganglioma", "Pituitary-Ca", "Thyroid-Ca",
+    "Parathyroid-Ca", "ACC-Adrenal", "Astrocytoma-CNS", "Oligodendroglioma-CNS",
+    "Ependymoma-CNS", "Neuronal-Glial-CNS", "CPC", "Malignant-Meningioma",
+    "Embryonal-CNS", "cHL", "NLPHL", "LBL-Burkitt", "CTCL", "T/NK-Cell-Lymphoma",
+    "DLBCL", "FL", "HCL", "MM", "MCL", "B-PLL", "APL", "AML", "CML", 
+    "MPN-Other", "MastCell", "MDS-5q", "MDS", "CMML", "aCML", "Histiocytic-Sarcoma",
+    "AccessoryCell-Tumour"
+  ))
 
 # Bind the two data frames
-tumour_names <- bind_cols(tumours_raw_filtered, tumour_names) %>%
-  select(Tumours.ID, Crude.incidence.rate.per.100.000, Tumour) %>%
-  mutate(
-    Tumour = case_when(
-      Tumour == "Acute promyelocytic leukemia (AML with t(15;17) with variants" ~ "Acute promyelocytic leukemia (AML with t(15;17) with variants)",
-      TRUE ~ Tumour
-    )
-  )
+tumour_names <- bind_cols(tumours_raw_filtered, tumour_name) %>%
+  select(Tumours.ID, Crude.incidence.rate.per.100.000, tumor, abbreviation) %>%
+  rename(Tumour = tumor) 
 
 # Filter other datasets on rare tumour trials
 products_df_filtered <- products_df %>%
@@ -219,7 +457,7 @@ wrapper <- function(x, ...) {
 }
 
 # Plot the top 10 tumours per type of activity
-p1 <- ggplot(top_10_MA, aes(x = reorder(Tumour, n_orphan_approvals), y = n_orphan_approvals)) +
+p1 <- ggplot(top_10_MA, aes(x = reorder(abbreviation, n_orphan_approvals), y = n_orphan_approvals)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) +
@@ -235,7 +473,7 @@ p1 <- ggplot(top_10_MA, aes(x = reorder(Tumour, n_orphan_approvals), y = n_orpha
     plot.title = element_text(size = 26)
   )
 
-p2 <- ggplot(top_10_OD, aes(x = reorder(Tumour, n_orphan_designations), y = n_orphan_designations)) +
+p2 <- ggplot(top_10_OD, aes(x = reorder(abbreviation, n_orphan_designations), y = n_orphan_designations)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) + 
@@ -251,7 +489,7 @@ p2 <- ggplot(top_10_OD, aes(x = reorder(Tumour, n_orphan_designations), y = n_or
     plot.title = element_text(size = 26)
   ) 
 
-p3 <- ggplot(top_10_CT, aes(x = reorder(Tumour, n_trials), y = n_trials)) +
+p3 <- ggplot(top_10_CT, aes(x = reorder(abbreviation, n_trials), y = n_trials)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) +
@@ -267,14 +505,14 @@ p3 <- ggplot(top_10_CT, aes(x = reorder(Tumour, n_trials), y = n_trials)) +
     plot.title = element_text(size = 26)
   )
 
-p4 <- ggplot(pubmed_publications, aes(x = reorder(Tumour, PubMed.Count.General), y = PubMed.Count.General)) +
+p4 <- ggplot(pubmed_publications, aes(x = reorder(abbreviation, PubMed.Count.General), y = PubMed.Count.General)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) +
   labs(
-    title = "PubMed Publications",
+    title = "Published Literature Density",
     x = "Tumour",
-    y = "Number of PubMed publications"
+    y = "Published literature density"
   ) +
   theme(
     text = element_text(size = 16),
@@ -287,7 +525,7 @@ p4 <- ggplot(pubmed_publications, aes(x = reorder(Tumour, PubMed.Count.General),
 plot_RQ1 <- (p2 / p1) | (p3 / p4)
 plot_RQ1 +
   plot_annotation(
-    title = "Top 10 Rare Tumours Across Multiple Research Activity Metrics",
+    title = "Top 10 Rare Tumours Across Multiple Orphan Drug Development Activity Metrics",
     tag_levels = "A",
     theme = theme(
       plot.title = element_text(size = 28, face = "bold", hjust = 0.5, margin = margin(b = 20))
@@ -465,8 +703,8 @@ RQ_3 <- orphan_long %>%
   mutate(approval_rate = round(n_approved / n_orphan_designations, 2),
          withdrawal_rate = round(n_withdrawed / n_orphan_designations, 2)) %>%
   left_join(RQ_1, by = "Tumours.ID") %>%
-  left_join(RQ_2, by = c("Tumours.ID", "Tumour")) %>%
-  select(Tumour, Tumours.ID, Crude.incidence.rate.per.100.000.x, n_orphan_designations.x, n_withdrawed, n_approved, approval_rate, withdrawal_rate, total_activity.x)
+  left_join(RQ_2, by = c("Tumours.ID", "Tumour", "abbreviation")) %>%
+  select(Tumour, Tumours.ID, abbreviation, Crude.incidence.rate.per.100.000.x, n_orphan_designations.x, n_withdrawed, n_approved, approval_rate, withdrawal_rate, total_activity.x)
 
 # Get top 10 tumours based on approval rate
 top_10_approval <- RQ_3 %>%
@@ -523,10 +761,13 @@ ggplot(RQ_3, aes(
   x = n_orphan_designations.x,
   y = approval_rate)) +
   geom_point(alpha = 0.7) +
-  geom_smooth(method = "lm") +
+  scale_y_continuous(
+    limits = c(0, max(RQ_3$approval_rate * 1.05, na.rm = TRUE)),
+    breaks = scales::pretty_breaks(n = 5),
+  ) +
   geom_text_repel(
     data = RQ_3_label,
-    aes(label = Tumour),
+    aes(label = abbreviation),
     size = 6,
     max.overlaps = Inf,
     box.padding = 0.6,
@@ -537,18 +778,23 @@ ggplot(RQ_3, aes(
   ) +
   scale_size_continuous(range = c(2, 10)) +
   labs(
-    title = "Associations between Orphan Designations and Approval Rate",
+    title = "Orphan Designations and Approval Rate across Rare Tumour Types",
     x = "Number of orphan designations",
     y = "Approval rate"
   ) +
+  theme_classic() +
   theme(
-      text = element_text(size = 16),
-      axis.title = element_text(size = 26),
-      axis.text = element_text(size = 22),
-      plot.title = element_text(size = 26, face = "bold"),
-      strip.text = element_text(size = 22),
-      legend.title = element_text(size = 22),
-      legend.text = element_text(size = 18)
+    text = element_text(size = 16),
+    axis.title = element_text(size = 26),
+    axis.text = element_text(size = 22),
+    plot.title = element_text(size = 32, face = "bold"),
+    strip.text = element_text(size = 22),
+    legend.title = element_text(size = 22),
+    legend.text = element_text(size = 18),
+    panel.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank()
   )
 
 # Make a scatter plot based on approval rate and total activity
@@ -654,6 +900,111 @@ orphan_dates <- orphan_indications_df %>%
     is_EMA = !is.na(EMA.ID)
   )
 
+# Retrieve orphan designation, authorisation, implementation, and withdrawl dates
+orphan_dates2 <- orphan_indications_df %>%
+  separate_rows(Tumours.ID, sep = ",\\s*") %>%
+  filter(!is.na(Designation.Date)) %>%
+  mutate(
+    Year.Designation = year(Designation.Date),
+    Year.Authorisation = year(Marketing.Authorisation.Date),
+    
+    keep_designation = Year.Designation < 2026,
+    keep_authorisation = !is.na(Year.Authorisation) & Year.Authorisation < 2026
+  ) %>%
+  full_join(
+    base_groups2 %>%
+      select(Tumours.ID, tumor_family) %>%
+      mutate(Tumours.ID = as.character(Tumours.ID)),
+    by = "Tumours.ID"
+  )
+
+# Designations per year
+designations_time <- orphan_dates2 %>%
+  filter(keep_designation) %>%
+  group_by(Year.Designation, tumor_family) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(type = "Orphan Designations")
+
+# Authorisations per year
+authorisations_time <- orphan_dates2 %>%
+  filter(!is.na(Year.Authorisation) & keep_authorisation) %>%
+  group_by(Year.Authorisation, tumor_family) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(type = "Marketing Authorisations")
+
+# Combine
+plot_time_tumour <- bind_rows(
+  designations_time %>% rename(Year = Year.Designation),
+  authorisations_time %>% rename(Year = Year.Authorisation)
+)
+
+# Add important events
+events <- data.frame(
+  Year = c(1997, 2000, 2012, 2016),
+  label = c(
+    "FDAMA",
+    "EMA",
+    "FDASIA",
+    "PRIME"
+  ))
+
+# Plot results
+ggplot(plot_time_tumour,
+       aes(x = Year, y = count, color = tumor_family, group = tumor_family)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  facet_wrap(~type, ncol = 1, scales = "free_y") +
+  geom_vline(
+    data = events,
+    aes(xintercept = Year),
+    linetype = "longdash",
+    colour = "grey40",
+    linewidth = 0.8
+  ) +
+  geom_text(
+    data = events,
+    aes(
+      x = Year + 0.1,
+      y = Inf,
+      label = label
+    ),
+    inherit.aes = FALSE,
+    hjust = 0,
+    vjust = 1.5,
+    size = 5
+  ) +
+  scale_x_continuous(
+    breaks = function(x) {
+      seq(
+        from = floor(min(x, na.rm = TRUE) / 5) * 5,
+        to   = ceiling(max(x, na.rm = TRUE) / 5) * 5,
+        by   = 5
+      )}) +
+  coord_cartesian(clip = "off") +
+  labs(
+    title = "Orphan Drug Development Activity Over Time Across Tumour Groups",
+    x = "Year",
+    y = "Number of events",
+    color = "Tumour group"
+  ) +
+  theme_gray() +
+  theme(
+    plot.margin = margin(
+      t = 40,
+      r = 20,
+      b = 20,
+      l = 20
+    ),
+    text = element_text(size = 14),
+    axis.title = element_text(size = 22),
+    axis.text = element_text(size = 18),
+    strip.text = element_text(size = 20),
+    legend.title = element_text(size = 22),
+    legend.text = element_text(size = 16),
+    plot.title = element_text(size = 26, face = "bold"),
+    legend.position = "bottom"
+  )
+
 # Determine number of designations/authorisations/implementations/withdrawals per year
 RQ_4_orphan <- orphan_dates %>%
   summarise(
@@ -673,6 +1024,20 @@ RQ_4_orphan <- orphan_dates %>%
   ) %>%
   arrange(Year.Designation) %>%
   filter(Year.Designation <= 2025)
+
+# Designations per year
+designations_time <- orphan_dates2 %>%
+  filter(keep_designation) %>%
+  group_by(Year.Designation, tumor_family) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(type = "Orphan Designations")
+
+# Authorisations per year
+authorisations_time <- orphan_dates2 %>%
+  filter(!is.na(Year.Authorisation) & keep_authorisation) %>%
+  group_by(Year.Authorisation, tumor_family) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(type = "Marketing Authorisations")
 
 # Change to long format
 RQ_4_orphan_long <- RQ_4_orphan %>%
@@ -699,112 +1064,6 @@ RQ_4_orphan_long <- RQ_4_orphan %>%
     )
   )
 
-# events <- data.frame(
-#   Year = c(1983, 1997, 2000, 2008, 2009, 2012, 2016, 2020, 2023),
-#   label = c(
-#     "FDA Orphan Drug Act",
-#     "FDA Modernization Act (FDAMA)",
-#     "EMA Orphan Regulation adoption",
-#     "Start of Great Recession",
-#     "End of Great Recession",
-#     "FDA Safety and Innovation Act (FDASIA)",
-#     "EMA PRIME",
-#     "Start of COVID-19 pandemic, Brexit",
-#     "End of COVID-19 pandemic"
-#   )
-# )
-
-
-# events <- data.frame(
-#   Year = c(1983, 1997, 2000, 2008, 2009, 2012, 2016, 2020, 2023),
-#   label = c(
-#     "ODA",
-#     "FDAMA",
-#     "EMA",
-#     "Start GR",
-#     "End GR",
-#     "FDASIA",
-#     "PRIME / Start of Brexit",
-#     "Start COVID-19 / Brexit",
-#     "End COVID-19"
-#   )
-# )
-
-# Add important events
-events <- data.frame(
-  Year = c(2008, 2009, 2016, 2020, 2023),
-  label = c(
-    "Start GR",
-    "End GR",
-    "Start of Brexit",
-    "Start COVID-19 / Brexit",
-    "End COVID-19"
-  )
-)
-
-# Distinguish between regulatory and non regulatory events
-events$type <- ifelse(events$label %in% c("Start GR", "End GR",
-                                          "Start of Brexit",
-                                          "Start COVID-19 / Brexit",
-                                          "End COVID-19"),
-                      "non_regulatory",
-                      "regulatory")
-
-
-# Labels 
-# event_labels <- data.frame(
-#   label   = c("The Great Recession", "Brexit", "COVID-19"),
-#   x_start = c(2008, 2016, 2020),     
-#   x_end   = c(2009, 2020, 2023),
-#   x_mid   = c(2007.5, 2018, 2021.5)
-# )
-
-# Plot orphan activity over time
-ggplot(RQ_4_orphan_long, aes(
-  x = Year.Designation,
-  y = count,
-  color = Event,
-  group = Event
-)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 2) +
-  facet_wrap(~Region) +
-  # Regulatory events
-  geom_vline(
-    data = subset(events, type == "regulatory"),
-    aes(xintercept = Year),
-    linetype = "longdash",
-    color = "grey60",
-    linewidth = 0.8
-  ) +
-  # Non-regulatory events
-  geom_vline(
-    data = subset(events, type == "non_regulatory"),
-    aes(xintercept = Year),
-    linetype = "dotted",
-    color = "grey10",
-    linewidth = 0.8
-  ) +
-  coord_cartesian(clip = "off") +
-  labs(
-    title = "Orphan Drug Development Activity Over Time (EU versus US)",
-    x = "Year",
-    y = "Number of events",
-    color = "Event"
-  ) +
-  theme_gray() +
-  theme(
-    text = element_text(size = 16),
-    axis.title = element_text(size = 26),
-    axis.text = element_text(size = 22),
-    strip.text = element_text(size = 22),
-    legend.title = element_text(size = 26),
-    legend.text = element_text(size = 22),
-    plot.title = element_text(size = 28, face = "bold"),
-    legend.position = "bottom",
-    plot.margin = margin(t = 20, r = 20, b = 90, l = 20)
-  )
-
 # Long format of trial data
 trials_long <- RQ_4_trials %>%
   select(Year, n_trials_EU, n_trials_US, n_completed_EU, n_completed_US) %>%
@@ -824,76 +1083,132 @@ trials_long <- RQ_4_trials %>%
     )
   )
 
-# events <- data.frame(
-#   Year = c(2000, 2005, 2008, 2009, 2011, 2020, 2022, 2023),
-#   label = c(
-#     "ClinicalTrials.gov launched",
-#     "ICMJE mandatory ClinicalTrials.gov registration required",
-#     "Start of Great Recession",
-#     "End of Great Recession",
-#     "EUCTR launched",
-#     "Start of COVID-19 pandemic, Brexit",
-#     "CTIS launched",
-#     "End of COVID-19 pandemic, CTIS launched"
-#   )
-# )
+# Events
+events <- data.frame(
+   Year = c(2000, 2011, 2022),
+   label = c(
+     "ClinicalTrials.gov",
+     "EUCTR",
+     "CTIS"
+   )
+ )
 
-# events$type <- ifelse(events$label %in% c(
-#   "ClinicalTrials.gov launched",
-#   "ICMJE mandatory ClinicalTrials.gov registration required",
-#   "EUCTR launched",
-#   "CTIS launched"
-# ),
-# "regulatory",
-# "non_regulatory")
+# Combine
+plot_time_tumour <- bind_rows(
+  designations_time %>% rename(Year = Year.Designation),
+  authorisations_time %>% rename(Year = Year.Authorisation)
+)
 
-# Plot clinical trial activity over time
-ggplot(trials_long, aes(
-  x = Year,
-  y = count,
-  color = Event,
-  group = Event
-)) +
+# Combine trial information with tumour information
+trial_ind <- trial_df %>%
+  mutate(
+    EDU.CT.ID = as.character(CT.EDU.ID),
+    NCT.ID = as.character(NCT.ID)
+  ) %>%
+  inner_join(
+    indications_df %>%
+      mutate(
+        EDU.CT.ID = as.character(CT.EDU.ID),
+        NCT.ID = as.character(NCT.ID)
+      ),
+    by = c("EDU.CT.ID", "NCT.ID")
+  ) %>%
+  rename(Tumours.ID = tumours_id) %>%
+  separate_rows(Tumours.ID, sep = ",\\s*") %>%
+  full_join(
+    base_groups2 %>%
+      select(Tumours.ID, tumor_family) %>%
+      mutate(Tumours.ID = as.character(Tumours.ID)),
+    by = "Tumours.ID"
+  )
+
+# Combine with tumour names
+trial_ind_tumour <- trial_ind %>%
+  mutate(Tumours.ID = as.character(Tumours.ID)) %>%
+  left_join(
+    tumour_names,
+    by = "Tumours.ID"
+  ) %>%
+  # Get start and completion years
+  mutate(
+    Start.Year = year(Start.Date),
+    End.Year = ifelse(Trial.Status == "completed", year(End.Date), NA)
+  )
+
+# Count number of events per year, per tumour group
+start_events <- trial_ind_tumour %>%
+  filter(!is.na(Start.Year)) %>%
+  group_by(Start.Year, tumor_family) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(type = "Trial Initiations")
+
+end_events <- trial_ind_tumour %>%
+  filter(!is.na(End.Year)) %>%
+  group_by(End.Year, tumor_family) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(type = "Trial Completions")
+
+# Combine
+plot_trial_time <- bind_rows(
+  start_events %>% rename(Year = Start.Year),
+  end_events %>% rename(Year = End.Year)
+)
+
+# Plot results
+ggplot(plot_trial_time,
+       aes(x = Year, y = count, color = tumor_family, group = tumor_family)) +
   geom_line(linewidth = 1) +
-  geom_point(size = 2) +
-  facet_wrap(~Region) +
-  # Regulatory events
+  geom_point(size = 1.5) +
+  facet_wrap(~type, ncol = 1, scales = "free_y") +
   geom_vline(
-    data = subset(events, type == "regulatory"),
+    data = events,
     aes(xintercept = Year),
     linetype = "longdash",
-    color = "grey60",
+    colour = "grey40",
     linewidth = 0.8
   ) +
-  # Non-regulatory events
-  geom_vline(
-    data = subset(events, type == "non_regulatory"),
-    aes(xintercept = Year),
-    linetype = "dotted",
-    color = "grey10",
-    linewidth = 0.8
+  geom_text(
+    data = events,
+    aes(
+      x = Year + 0.1,
+      y = Inf,
+      label = label
+    ),
+    inherit.aes = FALSE,
+    hjust = 0,
+    vjust = 1.5,
+    size = 5
   ) +
+  scale_x_continuous(
+    breaks = function(x) {
+      seq(
+        from = floor(min(x, na.rm = TRUE) / 5) * 5,
+        to   = ceiling(max(x, na.rm = TRUE) / 5) * 5,
+        by   = 5
+      )}) +
   coord_cartesian(clip = "off") +
-  scale_color_discrete(
-    labels = c("Clinical trials completed", "Clinical trials initiated")
-  ) +
   labs(
-    title = "Clinical Trial Activity Over Time (EU versus US)",
+    title = "Clinical Trial Activity Over Time Across Tumour Groups",
     x = "Year",
-    y = "Number of clinical trials",
-    color = "Event"
+    y = "Number of events",
+    color = "Tumour group"
   ) +
   theme_gray() +
   theme(
-    text = element_text(size = 16),
-    axis.title = element_text(size = 26),
-    axis.text = element_text(size = 22),
-    strip.text = element_text(size = 22),
-    legend.title = element_text(size = 26),
-    legend.text = element_text(size = 22),
-    plot.title = element_text(size = 28, face = "bold"),
-    legend.position = "bottom",,
-    plot.margin = margin(t = 20, r = 20, b = 90, l = 20)
+    plot.margin = margin(
+      t = 40,
+      r = 20,
+      b = 20,
+      l = 20
+    ),
+    text = element_text(size = 14),
+    axis.title = element_text(size = 22),
+    axis.text = element_text(size = 18),
+    strip.text = element_text(size = 20),
+    legend.title = element_text(size = 22),
+    legend.text = element_text(size = 16),
+    plot.title = element_text(size = 26, face = "bold"),
+    legend.position = "bottom"
   )
 
 # Research question 5:
@@ -982,10 +1297,6 @@ p2 <- ggplot(Time_difference, aes(x = time_to_aut_years, fill = region, color = 
   scale_fill_manual(values = c("EU" = "coral", "US" = "steelblue")) +
   scale_color_manual(values = c("EU" = "coral", "US" = "steelblue"))
 
-# Test if there is a significant difference between regions
-t_test_result <- t.test(time_to_aut_years ~ region, data = Time_difference)
-print(t_test_result)
-
 # Identify drugs appearing in both the EU and US
 drugs_both_regions <- orphan_indications_df %>%
   filter(!is.na(Drugbank.ID)) %>%                                               # Only drugs with a Drugbank ID
@@ -1026,10 +1337,10 @@ p1 <- ggplot(drugs_both_regions, aes(x = time_diff_years, fill = first_region)) 
   geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
   labs(
     title = "Time Difference Between US and EU Orphan Drug Marketing Authorisation",
-    subtitle = "Drugs Authorised for the Same Tumour in Both Regions",
+    subtitle = "Drugs Authorised for the Same Tumour in Both Territories",
     x = "Time difference (years)",
     y = "Count",
-    fill = "First region"
+    fill = "First territory"
   ) +
   theme_minimal() +
   theme(
@@ -1043,10 +1354,6 @@ p1 <- ggplot(drugs_both_regions, aes(x = time_diff_years, fill = first_region)) 
     plot.subtitle = element_text(size = 24)
   ) +
   scale_fill_manual(values = c("EU first" = "coral", "US first" = "steelblue", "Same time" = "gray"))
-
-# Test significance
-t_test_result <- t.test(time_diff_years ~ first_region, data = drugs_both_regions)
-print(t_test_result)
 
 # Combine approval and implementation date in one column
 drugs_long <- drugs_both_regions %>%
@@ -1075,9 +1382,6 @@ p2 <- ggplot(drugs_long, aes(x = region, y = approval_date, fill = region)) +
     legend.position = "none"
   ) +
   scale_fill_manual(values = c("EU" = "coral", "US" = "steelblue"))
-
-# Test if there is a significant difference between regions
-t.test(drugs_both_regions$time_diff_years, mu = 0)
 
 # Research question 6:
 # Get all drug-tumour combinations
@@ -1140,9 +1444,6 @@ ggplot(RQ_6, aes(x = different_years, fill = designation_timing)) +
   ) +
   scale_fill_manual(values = c("After orphan designation" = "coral", "Before orphan designation" = "steelblue"))
 
-# Test if there is a significant difference
-t.test(RQ_6$different_years, mu = 0)
-
 # Determine the number of orphan approvals per RARECARE tumour
 number_of_orphan_approvals <- orphan_long %>%
   filter(!is.na(Orphan.ID), Orphan.Designation.Status == "approved") %>%
@@ -1176,6 +1477,7 @@ trial_drugs_flagged <- trial_drugs %>%
   mutate(is_orphan = coalesce(is_orphan, FALSE)) %>%
   distinct(Tumours.ID, CT.EDU.ID, NCT.ID, is_orphan, Drugbank.ID)
 
+# Retrieve number of orphan drugs used in trials per tumour
 trial_orphan <- trial_drugs_flagged %>%
   group_by(Tumours.ID) %>%
   summarise(
@@ -1200,7 +1502,7 @@ big_df <- tumour_names %>%
   mutate(across(c(n_orphan_designations, n_orphan_approvals, n_withdrawed, n_trials, approval_rate, withdrawal_rate, total_publications, total_publications_od, n_orphan_true),
     ~ coalesce(.x, 0))) %>%
   mutate(Tumour = as.character(Tumour)) %>%
-  select(Tumour, Tumours.ID, Crude.incidence.rate.per.100.000, n_orphan_designations, n_orphan_approvals, approval_rate, n_withdrawed, withdrawal_rate, total_publications, total_publications_od, n_trials, n_orphan_true, Research_score, Normalised_research_score) %>%
+  select(Tumour, abbreviation, Tumours.ID, Crude.incidence.rate.per.100.000, n_orphan_designations, n_orphan_approvals, approval_rate, n_withdrawed, withdrawal_rate, total_publications, total_publications_od, n_trials, n_orphan_true, Research_score, Normalised_research_score) %>%
   arrange(desc(Research_score)) %>%
   # Split scores into tertitles and put tumours in groups
   mutate(
@@ -1303,51 +1605,6 @@ OD_no <- OD_no_prior_trial %>%
 MA_no <- MA_no_prior_trial %>%
   mutate(type = "MA", trials = 0)
 
-
-# df_plot <- trials_to_MA %>%
-#   mutate(type = "To MA", trials = trials_to_MA) %>%
-#   select(Tumours.ID, Drugbank.ID, type, trials) %>%
-#   bind_rows(
-#     df_trials_to_ODD %>%
-#       mutate(type = "To ODD", trials = trials_to_ODD) %>%
-#       select(Tumours.ID, Drugbank.ID, type, trials)
-#   )
-
-# Add all information into one dataframe 
-df_all <- trials_to_MA %>%
-  mutate(type = "To MA", trials = trials_to_MA) %>%
-  mutate(Tumours.ID =as.integer(Tumours.ID)) %>%
-  select(Tumours.ID, Drugbank.ID, type, trials) %>%
-  bind_rows(
-    trials_to_ODD %>%
-      mutate(type = "To ODD", trials = trials_to_ODD) %>%
-      select(Tumours.ID, Drugbank.ID, type, trials),
-    OD_no %>%
-      mutate(type = "To ODD", trials = trials) %>%
-      select(Tumours.ID, Drugbank.ID, type, trials),
-    MA_no %>%
-      mutate(type = "To MA", trials = trials) %>%
-      select(Tumours.ID, Drugbank.ID, type, trials)
-  )
-
-# ggplot(df_plot, aes(x = trials, fill = type)) +
-#   geom_histogram(binwidth = 1, position = "dodge") +
-#   coord_cartesian(xlim = c(0, 100)) +
-#   labs(
-#     title = "Number of clinical trials before designation vs approval",
-#     x = "Number of clinical trials",
-#     y = "Count of drug–tumor pairs"
-#   ) +
-#   theme(
-#     text = element_text(size = 12),
-#     axis.title = element_text(size = 22),
-#     axis.text = element_text(size = 18),
-#     strip.text = element_text(size = 18),
-#     legend.title = element_text(size = 22),
-#     legend.text = element_text(size = 18),
-#     plot.title = element_text(size = 26, face = "bold")
-#   ) 
-
 # Add all information together
 df_cum_plot <- trials_to_MA %>%
   mutate(type = "MA", trials = trials_to_MA) %>%
@@ -1373,11 +1630,17 @@ df_cum_plot <- trials_to_MA %>%
 ggplot(df_cum_plot, aes(x = trials, y = cum_fraction, color = type)) +
   geom_step(linewidth = 1) +
   coord_cartesian(xlim = c(0, 50)) +
+  scale_color_discrete(
+    labels = c(
+      "Marketing authorisation",
+      "Orphan designation"
+    )
+  ) +
   labs(
-    title = "Number of Clinical Trials Needed Before Reaching OD/MA",
+    title = "Proportion of Tumours Achieving Orphan Designation or Marketing Authorisation by Number of Clinical Trials",
     x = "Number of clinical trials",
     y = "Proportion reached",
-    color = "Milestone"
+    color = "Regulatory milestone"
   ) +
   theme(
     text = element_text(size = 12),
@@ -1388,20 +1651,6 @@ ggplot(df_cum_plot, aes(x = trials, y = cum_fraction, color = type)) +
     legend.text = element_text(size = 18),
     plot.title = element_text(size = 24, face = "bold")
   ) 
-
-# Plot top 10 and bottom 10 tumours by (normalised) research score
-ggplot(big_df, aes(x = reorder(Tumour, Normalised_research_score),
-                     y = Normalised_research_score,
-                     color = research_group)) +
-  geom_point(size = 2) +
-  coord_flip() +
-  theme_minimal() +
-  labs(
-    title = "Top and Bottom Tumours by Normalised Research Activity Score",
-    x = "",
-    y = "Normalised research score",
-    color = "Group"
-  )
 
 # Change data type
 big_df <- big_df %>%
@@ -1414,23 +1663,81 @@ big_df <- big_df %>%
 big_df_label <- big_df %>%
   select(-top_bottom_group) %>%
   filter(Crude.incidence.rate.per.100.000 > 5 |
-           n_orphan_approvals > 12)
+           n_orphan_designations > 200)
 
-# Plot crude incidence against number of authorisations and total publications
+# Plot crude incidence against number of orphan designations and clinical trials
+ggplot(big_df, aes(
+  x = Crude.incidence.rate.per.100.000,
+  y = n_orphan_designations
+)) +
+  scale_y_continuous(
+    limits = c(0, max(big_df$n_orphan_designations * 1.05, na.rm = TRUE)),
+    breaks = scales::pretty_breaks(n = 5),
+  ) +
+  geom_point(aes(
+    size = n_trials,
+  ), alpha = 0.7) +
+  geom_text_repel(
+    data = big_df_label,
+    aes(
+      x = Crude.incidence.rate.per.100.000,
+      y = n_orphan_designations,
+      label = abbreviation
+    ),
+    inherit.aes = FALSE,
+    size = 6,
+    max.overlaps = Inf,
+    box.padding = 0.6,
+    point.padding = 0.6,
+    force = 6,
+    segment.alpha = 0.7,
+    nudge_y = 0.03
+  ) +
+  labs(
+    x = "Tumour incidence (per 100,000)",
+    y = "Number of orphan designations",
+    size = "Number of clinical trials",
+    title = "Tumour Incidence, Orphan Designations, and Clinical Trials by Tumour Type"
+  )  +
+  theme_classic() +
+  theme(
+    text = element_text(size = 16),
+    axis.title = element_text(size = 26),
+    axis.text = element_text(size = 22),
+    plot.title = element_text(size = 32, face = "bold"),
+    strip.text = element_text(size = 22),
+    legend.title = element_text(size = 22),
+    legend.text = element_text(size = 18),
+    panel.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank()
+  )
+
+# Only add tumour names above certain thresholds
+big_df_label <- big_df %>%
+  select(-top_bottom_group) %>%
+  filter(Crude.incidence.rate.per.100.000 > 5 |
+           n_orphan_approvals > 10)
+
+# Plot crude incidence against number of marketing authorisations and publications
 ggplot(big_df, aes(
   x = Crude.incidence.rate.per.100.000,
   y = n_orphan_approvals
 )) +
+  scale_y_continuous(
+    limits = c(0, max(big_df$n_orphan_approvals * 1.05, na.rm = TRUE)),
+    breaks = scales::pretty_breaks(n = 5),
+  ) +
   geom_point(aes(
     size = total_publications,
   ), alpha = 0.7) +
-  geom_smooth(method = "lm", se = TRUE) +
   geom_text_repel(
     data = big_df_label,
     aes(
       x = Crude.incidence.rate.per.100.000,
       y = n_orphan_approvals,
-      label = Tumour
+      label = abbreviation
     ),
     inherit.aes = FALSE,
     size = 6,
@@ -1444,9 +1751,10 @@ ggplot(big_df, aes(
   labs(
     x = "Tumour incidence (per 100,000)",
     y = "Number of marketing authorisations",
-    size = "Number of publications",
-    title = "Association between Tumour Incidence, Marketing Authorisations, and Publications"
+    size = "Published literature density",
+    title = "Tumour Incidence, Marketing Authorisations, and Published Literature Density by Tumour Type"
   )  +
+  theme_classic() +
   theme(
     text = element_text(size = 16),
     axis.title = element_text(size = 26),
@@ -1454,35 +1762,90 @@ ggplot(big_df, aes(
     plot.title = element_text(size = 32, face = "bold"),
     strip.text = element_text(size = 22),
     legend.title = element_text(size = 22),
-    legend.text = element_text(size = 18)
+    legend.text = element_text(size = 18),
+    panel.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank()
+  )
+
+big_df_label <- big_df %>%
+  select(-top_bottom_group) %>%
+  filter(Crude.incidence.rate.per.100.000 > 5 |
+           Research_score > 0.4)
+
+# Plot crude incidence against research score
+ggplot(big_df, aes(
+  x = Crude.incidence.rate.per.100.000,
+  y = Research_score
+)) +
+  geom_point(alpha = 0.7) +
+  scale_y_continuous(
+    limits = c(0, max(big_df$Research_score * 1.05, na.rm = TRUE)),
+    breaks = scales::pretty_breaks(n = 5),
+  ) +
+  geom_text_repel(
+    data = big_df_label,
+    aes(
+      x = Crude.incidence.rate.per.100.000,
+      y = Research_score,
+      label = abbreviation
+    ),
+    inherit.aes = FALSE,
+    size = 6,
+    max.overlaps = Inf,
+    box.padding = 0.6,
+    point.padding = 0.6,
+    force = 6,
+    segment.alpha = 0.7,
+    nudge_y = 0.03
+  ) +
+  labs(
+    x = "Tumour incidence (per 100,000)",
+    y = "Orphan drug development score",
+    title = "Tumour Incidence and Orphan Drug Development Score by Tumour Type"
+  )  +
+  theme_classic() +
+  theme(
+    text = element_text(size = 16),
+    axis.title = element_text(size = 26),
+    axis.text = element_text(size = 22),
+    plot.title = element_text(size = 32, face = "bold"),
+    strip.text = element_text(size = 22),
+    legend.title = element_text(size = 22),
+    legend.text = element_text(size = 18),
+    panel.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank()
   )
 
 # Top 10 tumours based on (normalised) research score
 top_10_RS <- big_df %>%
   slice_max(order_by = as.numeric(Research_score), n = 10, with_ties = FALSE)
 top_10_nRS <- big_df %>%
-  slice_max(order_by = as.numeric(Normalised_research_score), n = 10, with_ties = FALSE)
+  slice_max(order_by = as.numeric(Crude.incidence.rate.per.100.000), n = 10, with_ties = FALSE)
 bottom_10_RS <- big_df %>%
   slice_min(order_by = as.numeric(Research_score), n = 10, with_ties = FALSE)
 bottom_10_nRS <- big_df %>%
-  slice_min(order_by = as.numeric(Normalised_research_score), n = 10, with_ties = FALSE)
+  slice_min(order_by = as.numeric(Crude.incidence.rate.per.100.000), n = 10, with_ties = FALSE)
 
 # Find maximum values for later plotting
 max_RS <- max(c(top_10_RS$Research_score,
                 bottom_10_RS$Research_score))
-max_nRS <- max(c(top_10_nRS$Normalised_research_score,
-                bottom_10_nRS$Normalised_research_score))
+max_nRS <- max(c(top_10_nRS$Crude.incidence.rate.per.100.000,
+                 bottom_10_nRS$Crude.incidence.rate.per.100.000))
 
 # Plot top 10 tumours based on research score
-p1 <- ggplot(top_10_RS, aes(x = reorder(Tumour, Research_score), y = Research_score)) +
+p1 <- ggplot(top_10_RS, aes(x = reorder(abbreviation, Research_score), y = Research_score)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) +
   scale_y_continuous(limits = c(0, max_RS)) +
   labs(
-    title = "Top 10 Tumour Types",
+    title = "Orphan Drug Development Score Top 10",
     x = "Tumour",
-    y = "Research score"
+    y = "Orphan drug development score"
   ) +
   theme(
     text = element_text(size = 12),
@@ -1491,16 +1854,16 @@ p1 <- ggplot(top_10_RS, aes(x = reorder(Tumour, Research_score), y = Research_sc
     plot.title = element_text(size = 22)
   )
 
-# Plot top 10 tumours based on normalised research score
-p2 <- ggplot(top_10_nRS, aes(x = reorder(Tumour, Normalised_research_score), y = Normalised_research_score)) +
+# Plot top 10 tumours based on incidence
+p2 <- ggplot(top_10_nRS, aes(x = reorder(abbreviation, Crude.incidence.rate.per.100.000), y = Crude.incidence.rate.per.100.000)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) +
-  scale_y_continuous(limits = c(0, max_nRS)) +
+  scale_y_continuous() +
   labs(
-    title = "Top 10 Tumour Types",
+    title = "Incidence Top 10",
     x = "Tumour",
-    y = "Incidence-adjusted research score"
+    y = "Tumour incidence (per 100,000)"
   ) +
   theme(
     text = element_text(size = 12),
@@ -1510,15 +1873,15 @@ p2 <- ggplot(top_10_nRS, aes(x = reorder(Tumour, Normalised_research_score), y =
   )
 
 # Plot bottom 10 tumours based on research score
-p3 <- ggplot(bottom_10_RS, aes(x = reorder(Tumour, Research_score), y = Research_score)) +
+p3 <- ggplot(bottom_10_RS, aes(x = reorder(abbreviation, Research_score), y = Research_score)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) +
   scale_y_continuous(limits = c(0, max_RS)) +
   labs(
-    title = "Bottom 10 Tumour Types",
+    title = "Orphan Drug Development Score Bottom 10",
     x = "Tumour",
-    y = "Research score"
+    y = "Orphan drug development score"
   ) +
   theme(
     text = element_text(size = 12),
@@ -1527,16 +1890,16 @@ p3 <- ggplot(bottom_10_RS, aes(x = reorder(Tumour, Research_score), y = Research
     plot.title = element_text(size = 22)
   )
 
-# Plot bottom 10 tumours based on normalised research score
-p4 <- ggplot(bottom_10_nRS, aes(x = reorder(Tumour, Normalised_research_score), y = Normalised_research_score)) +
+# Plot bottom 10 tumours based on incidence
+p4 <- ggplot(bottom_10_nRS, aes(x = reorder(abbreviation, Crude.incidence.rate.per.100.000), y = Crude.incidence.rate.per.100.000)) +
   geom_col() +
   coord_flip() +
   scale_x_discrete(labels = function(x) sapply(x, wrapper)) +
-  scale_y_continuous(limits = c(0, max_nRS)) +
+  scale_y_continuous() +
   labs(
-    title = "Bottom 10 Tumour Types",
+    title = "Incidence Bottom 10",
     x = "Tumour",
-    y = "Incidence-adjussted research score"
+    y = "Tumour incidence (per 100,000)"
   ) +
   theme(
     text = element_text(size = 12),
@@ -1546,20 +1909,10 @@ p4 <- ggplot(bottom_10_nRS, aes(x = reorder(Tumour, Normalised_research_score), 
   )
 
 # Add plots together
-plot_RQ_main <- (p1|p3)
+plot_RQ_main <- (p1|p3)/(p2|p4)
 plot_RQ_main +
   plot_annotation(
-    title = "Top and Bottom 10 Rare Tumours by Research Activity Score",
-    tag_levels = "A",
-    theme = theme(
-      plot.title = element_text(size = 26, face = "bold", hjust = 0.5, margin = margin(b = 20))
-    )
-  )
-
-plot_RQ_main_bottom <- (p2|p4)
-plot_RQ_main_bottom +
-  plot_annotation(
-    title = "Top and Bottom 10 Rare Tumours by Incidence-Adjusted Research Activity Score",
+    title = "Top and Bottom 10 Rare Tumours by Orphan Drug Development Score and Tumour Incidence",
     tag_levels = "A",
     theme = theme(
       plot.title = element_text(size = 26, face = "bold", hjust = 0.5, margin = margin(b = 20))
@@ -1634,19 +1987,6 @@ ema_trials_before <- orphan_long %>%
 comparison_df <- ema_trials_before %>%
   full_join(fda_trials_before, by = c("Tumours.ID", "Drugbank.ID"), relationship = "many-to-many") %>%
   distinct() 
-
-# Determine if there is a significant difference between the two regions --> only include those in both regions
-only_valid <- comparison_df %>%
-  filter(
-    !is.na(n_trials_before_EMA),
-    !is.na(n_trials_before_FDA),
-  )
-
-t.test(
-  only_valid$n_trials_before_FDA,
-  only_valid$n_trials_before_EMA,
-  paired = TRUE
-)
 
 # Get all US drugs that were given a market authorisation before clinical trials were started
 fda_trials_after <- orphan_long %>%
@@ -1735,14 +2075,6 @@ trial_phase_centre <- trial_information_df_filtered %>%
   mutate(across(where(is.numeric), ~ round(.x / total, 2), .names = "{.col}_prop")) %>%
   select(-total)
 
-# Test significance
-table_phase <- as.matrix(trial_phase_centre[, c(
-  "I", "I and II", "I and III", "II", "II and III",
-  "III", "IV", "III and IV", "NA"
-)]) 
-rownames(table_phase) <- trial_phase_centre$trial_type
-chisq.test(table_phase)
-
 # Change to long format and recode names
 trial_phase_long <- trial_phase_centre %>%
   pivot_longer(
@@ -1805,19 +2137,6 @@ trial_status_centre <- trial_information_df_filtered %>%
   mutate(total = rowSums(across(where(is.numeric)))) %>%
   mutate(across(where(is.numeric), ~ round(.x / total, 2), .names = "{.col}_prop")) %>%
   select(-total)
-
-# Test significance
-table_status <- as.matrix(trial_status_centre[, c(
-  "authorised",
-  "completed",
-  "ongoing",
-  "prematurely ended",
-  "temporarily halted",
-  "trial now transitioned",
-  "eea"
-)])
-rownames(table_status) <- trial_status_centre$trial_type
-chisq.test(table_status)$expected
 
 # Change to long format and recode names
 trial_status_long <- trial_status_centre %>%
